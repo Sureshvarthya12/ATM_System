@@ -1,24 +1,19 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace ATMSystem
 {
-    // User model with common properties
     public abstract class User
     {
         public int Id { get; set; }
-        public string Login { get; set; }
-        public string PinCode { get; set; }
-        public string Name { get; set; }
+        public required string Login { get; set; }
+        public required string PinCode { get; set; }
+        public required string Name { get; set; }
         public UserType Type { get; set; }
 
-        public bool ValidatePin(string enteredPin)
-        {
-            return PinCode == enteredPin;
-        }
+        public bool ValidatePin(string enteredPin) => PinCode == enteredPin;
     }
 
-    // Customer extends User
     public class Customer : User
     {
         public int AccountNumber { get; set; }
@@ -29,7 +24,6 @@ namespace ATMSystem
         }
     }
 
-    // Administrator extends User
     public class Administrator : User
     {
         public Administrator()
@@ -38,11 +32,10 @@ namespace ATMSystem
         }
     }
 
-    // Account model
     public class Account
     {
         public int AccountNumber { get; set; }
-        public string HolderName { get; set; }
+        public required string HolderName { get; set; }
         public decimal Balance { get; set; }
         public AccountStatus Status { get; set; }
 
@@ -65,7 +58,6 @@ namespace ATMSystem
         }
     }
 
-    // Transaction model
     public class Transaction
     {
         public int Id { get; set; }
@@ -76,7 +68,6 @@ namespace ATMSystem
         public decimal BalanceAfter { get; set; }
     }
 
-    // Enums
     public enum UserType
     {
         Customer,

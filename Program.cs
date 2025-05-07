@@ -1,4 +1,5 @@
 ﻿using System;
+using ATMSystem.Data;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ATMSystem
@@ -9,12 +10,10 @@ namespace ATMSystem
         {
             try
             {
-                // Setup Dependency Injection
                 var services = new ServiceCollection();
                 ConfigureServices(services);
-                var serviceProvider = services.BuildServiceProvider();
+                IServiceProvider serviceProvider = services.BuildServiceProvider();
 
-                // Get the ATM instance and start it
                 var atm = serviceProvider.GetRequiredService<ATM>();
                 atm.Start();
             }
@@ -28,15 +27,11 @@ namespace ATMSystem
             }
         }
 
-        private static void ConfigureServices(ServiceCollection services)
+        private static void ConfigureServices(IServiceCollection services)
         {
-            // Connection string - update with your MySQL credentials
             string connectionString = "Server=localhost;Database=atm_system;Uid=root;Pwd=root;";
+           services.AddSingleton<IDatabase>(provider => new Database(connectionString));
 
-            // Register MySQL database
-            services.AddSingleton(new Database(connectionString));
-
-            // Register ATM
             services.AddSingleton<ATM>();
         }
     }

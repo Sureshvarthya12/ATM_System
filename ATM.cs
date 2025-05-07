@@ -1,18 +1,24 @@
 ﻿using System;
 using System.Linq;
-using System.Security.Principal;
-using System.Transactions;
+using ATMSystem.Data;
 
 namespace ATMSystem
 {
     public class ATM
     {
-        private readonly Database _database;
+        private readonly IDatabase _database;
+        private readonly IConsole _console;
         private User _currentUser;
+        private IConsole? console;
 
-        public ATM(Database database)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ATM"/> class.
+        /// </summary>
+        /// <param name="database"></param>
+        public ATM(IDatabase database)
         {
             _database = database;
+            _console = console;
         }
 
         public void Start()
@@ -25,7 +31,6 @@ namespace ATMSystem
                 Console.WriteLine("Welcome to the ATM System");
                 Console.WriteLine("------------------------");
 
-                // Login process
                 if (!Login())
                 {
                     Console.WriteLine("Would you like to try again? (y/n)");
@@ -35,7 +40,6 @@ namespace ATMSystem
                     continue;
                 }
 
-                // Route to appropriate menu based on user type
                 if (_currentUser is Customer customer)
                 {
                     RunCustomerMenu(customer);
@@ -45,7 +49,6 @@ namespace ATMSystem
                     RunAdministratorMenu();
                 }
 
-                // Log out
                 _currentUser = null;
 
                 Console.WriteLine("Press any key to continue...");
@@ -67,7 +70,6 @@ namespace ATMSystem
             string pinCode = Console.ReadLine();
             Console.ResetColor();
 
-            // Validate pin code format
             if (pinCode.Length != 5 || !pinCode.All(char.IsDigit))
             {
                 Console.WriteLine("\nError: Pin Code must be a 5-digit number.");
@@ -89,6 +91,11 @@ namespace ATMSystem
             _currentUser = user;
             return true;
         }
+        public bool LoginForTest()
+        {
+             return Login();
+        }
+
 
         private void RunCustomerMenu(Customer customer)
         {
@@ -153,10 +160,8 @@ namespace ATMSystem
 
             if (account.Withdraw(amount))
             {
-                // Update the account in the database
                 _database.UpdateAccount(account);
 
-                // Record the transaction
                 var transaction = new Transaction
                 {
                     AccountNumber = account.AccountNumber,
@@ -191,10 +196,8 @@ namespace ATMSystem
 
             if (account.Deposit(amount))
             {
-                // Update the account in the database
                 _database.UpdateAccount(account);
 
-                // Record the transaction
                 var transaction = new Transaction
                 {
                     AccountNumber = account.AccountNumber,
@@ -278,11 +281,9 @@ namespace ATMSystem
             Console.WriteLine("Create New Account");
             Console.WriteLine("-----------------");
 
-            // Get customer information
             Console.Write("Login: ");
             string login = Console.ReadLine();
 
-            // Check if login already exists
             if (_database.GetUserByLogin(login) != null)
             {
                 Console.WriteLine("Error: Login already exists. Please choose a different login.");
@@ -292,7 +293,6 @@ namespace ATMSystem
             Console.Write("Pin Code: ");
             string pinCode = Console.ReadLine();
 
-            // Validate pin code
             if (pinCode.Length != 5 || !pinCode.All(char.IsDigit))
             {
                 Console.WriteLine("Error: Pin Code must be a 5-digit number.");
@@ -313,7 +313,6 @@ namespace ATMSystem
             string statusInput = Console.ReadLine().ToLower();
             AccountStatus status = statusInput == "disabled" ? AccountStatus.Disabled : AccountStatus.Active;
 
-            // Create the customer and account
             var customer = new Customer
             {
                 Login = login,
@@ -393,10 +392,8 @@ namespace ATMSystem
                 return;
             }
 
-            // Display current account information
             DisplayAccountInformation(account);
 
-            // Update holder name
             Console.Write("New Holder Name (leave blank to keep current): ");
             string holderName = Console.ReadLine();
             if (!string.IsNullOrWhiteSpace(holderName))
@@ -404,7 +401,6 @@ namespace ATMSystem
                 account.HolderName = holderName;
             }
 
-            // Update status
             Console.Write("New Status (Active/Disabled, leave blank to keep current): ");
             string statusInput = Console.ReadLine().ToLower();
             if (!string.IsNullOrWhiteSpace(statusInput))
@@ -412,7 +408,6 @@ namespace ATMSystem
                 account.Status = statusInput == "disabled" ? AccountStatus.Disabled : AccountStatus.Active;
             }
 
-            // Update the account in the database
             if (_database.UpdateAccount(account))
             {
                 Console.WriteLine("Account Information Updated Successfully");
@@ -453,5 +448,9 @@ namespace ATMSystem
             Console.WriteLine($"Balance: {account.Balance:N0}");
             Console.WriteLine($"Status: {account.Status}");
         }
+    }
+
+    internal interface IConsole
+    {
     }
 }

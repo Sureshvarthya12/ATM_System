@@ -1,10 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Security.Principal;
-using System.Transactions;
 using MySql.Data.MySqlClient;
-  
+
 namespace ATMSystem
 {
     public class Database
@@ -22,52 +19,46 @@ namespace ATMSystem
 
             try
             {
-                using (var connection = new MySqlConnection(_connectionString))
+                using var connection = new MySqlConnection(_connectionString);
+                connection.Open();
+                var command = new MySqlCommand(
+                    "SELECT u.*, ca.account_number FROM users u " +
+                    "LEFT JOIN customer_accounts ca ON u.id = ca.user_id " +
+                    "WHERE u.login = @login", connection);
+                command.Parameters.AddWithValue("@login", login);
+
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    connection.Open();
-                    var command = new MySqlCommand(
-                        "SELECT u.*, ca.account_number FROM users u " +
-                        "LEFT JOIN customer_accounts ca ON u.id = ca.user_id " +
-                        "WHERE u.login = @login", connection);
-                    command.Parameters.AddWithValue("@login", login);
+                    var userType = reader.GetString("user_type");
+                    var id = reader.GetInt32("id");
+                    var name = reader.GetString("name");
+                    var pinCode = reader.GetString("pin_code");
 
-                    using (var reader = command.ExecuteReader())
+                    if (userType == "Customer")
                     {
-                        if (reader.Read())
+                        var customer = new Customer
                         {
-                            var userType = reader.GetString("user_type");
-                            var id = reader.GetInt32("id");
-                            var name = reader.GetString("name");
-                            var pinCode = reader.GetString("pin_code");
+                            Id = id,
+                            Login = login,
+                            PinCode = pinCode,
+                            Name = name
+                        };
 
-                            if (userType == "Customer")
-                            {
-                                var customer = new Customer
-                                {
-                                    Id = id,
-                                    Login = login,
-                                    PinCode = pinCode,
-                                    Name = name
-                                };
+                        if (!reader.IsDBNull(reader.GetOrdinal("account_number")))
+                            customer.AccountNumber = reader.GetInt32("account_number");
 
-                                if (!reader.IsDBNull(reader.GetOrdinal("account_number")))
-                                {
-                                    customer.AccountNumber = reader.GetInt32("account_number");
-                                }
-
-                                user = customer;
-                            }
-                            else if (userType == "Administrator")
-                            {
-                                user = new Administrator
-                                {
-                                    Id = id,
-                                    Login = login,
-                                    PinCode = pinCode,
-                                    Name = name
-                                };
-                            }
-                        }
+                        user = customer;
+                    }
+                    else if (userType == "Administrator")
+                    {
+                        user = new Administrator
+                        {
+                            Id = id,
+                            Login = login,
+                            PinCode = pinCode,
+                            Name = name
+                        };
                     }
                 }
             }
@@ -85,27 +76,21 @@ namespace ATMSystem
 
             try
             {
-                using (var connection = new MySqlConnection(_connectionString))
-                {
-                    connection.Open();
-                    var command = new MySqlCommand(
-                        "SELECT * FROM accounts WHERE account_number = @accountNumber",
-                        connection);
-                    command.Parameters.AddWithValue("@accountNumber", accountNumber);
+                using var connection = new MySqlConnection(_connectionString);
+                connection.Open();
+                var command = new MySqlCommand("SELECT * FROM accounts WHERE account_number = @accountNumber", connection);
+                command.Parameters.AddWithValue("@accountNumber", accountNumber);
 
-                    using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    account = new Account
                     {
-                        if (reader.Read())
-                        {
-                            account = new Account
-                            {
-                                AccountNumber = reader.GetInt32("account_number"),
-                                HolderName = reader.GetString("holder_name"),
-                                Balance = reader.GetDecimal("balance"),
-                                Status = (AccountStatus)Enum.Parse(typeof(AccountStatus), reader.GetString("status"))
-                            };
-                        }
-                    }
+                        AccountNumber = reader.GetInt32("account_number"),
+                        HolderName = reader.GetString("holder_name"),
+                        Balance = reader.GetDecimal("balance"),
+                        Status = Enum.Parse<AccountStatus>(reader.GetString("status"))
+                    };
                 }
             }
             catch (Exception ex)
@@ -122,30 +107,27 @@ namespace ATMSystem
 
             try
             {
-                using (var connection = new MySqlConnection(_connectionString))
-                {
-                    connection.Open();
-                    var command = new MySqlCommand("SELECT * FROM accounts", connection);
+                using var connection = new MySqlConnection(_connectionString);
+                connection.Open();
+                var command = new MySqlCommand("SELECT * FROM accounts", connection);
 
-                    using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    accounts.Add(new Account
                     {
-                        while (reader.Read())
-                        {
-                            accounts.Add(new Account
-                            {
-                                AccountNumber = reader.GetInt32("account_number"),
-                                HolderName = reader.GetString("holder_name"),
-                                Balance = reader.GetDecimal("balance"),
-                                Status = (AccountStatus)Enum.Parse(typeof(AccountStatus), reader.GetString("status"))
-                            });
-                        }
-                    }
+                        AccountNumber = reader.GetInt32("account_number"),
+                        HolderName = reader.GetString("holder_name"),
+                        Balance = reader.GetDecimal("balance"),
+                        Status = Enum.Parse<AccountStatus>(reader.GetString("status"))
+                    });
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Database error: {ex.Message}");
             }
+
             return accounts;
         }
 
@@ -153,59 +135,47 @@ namespace ATMSystem
         {
             try
             {
-                using (var connection = new MySqlConnection(_connectionString))
+                using var connection = new MySqlConnection(_connectionString);
+                connection.Open();
+                using var transaction = connection.BeginTransaction();
+                try
                 {
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        try
-                        {
-                            // Insert account
-                            var accountCommand = new MySqlCommand(
-                                "INSERT INTO accounts (holder_name, balance, status) " +
-                                "VALUES (@holderName, @balance, @status); " +
-                                "SELECT LAST_INSERT_ID();",
-                                connection, transaction);
-                            accountCommand.Parameters.AddWithValue("@holderName", account.HolderName);
-                            accountCommand.Parameters.AddWithValue("@balance", account.Balance);
-                            accountCommand.Parameters.AddWithValue("@status", account.Status.ToString());
+                    var accountCommand = new MySqlCommand(
+                        "INSERT INTO accounts (holder_name, balance, status) " +
+                        "VALUES (@holderName, @balance, @status); SELECT LAST_INSERT_ID();",
+                        connection, transaction);
+                    accountCommand.Parameters.AddWithValue("@holderName", account.HolderName);
+                    accountCommand.Parameters.AddWithValue("@balance", account.Balance);
+                    accountCommand.Parameters.AddWithValue("@status", account.Status.ToString());
 
-                            int accountNumber = Convert.ToInt32(accountCommand.ExecuteScalar());
-                            account.AccountNumber = accountNumber;
+                    account.AccountNumber = Convert.ToInt32(accountCommand.ExecuteScalar());
 
-                            // Insert user
-                            var userCommand = new MySqlCommand(
-                                "INSERT INTO users (login, pin_code, name, user_type) " +
-                                "VALUES (@login, @pinCode, @name, 'Customer'); " +
-                                "SELECT LAST_INSERT_ID();",
-                                connection, transaction);
-                            userCommand.Parameters.AddWithValue("@login", customer.Login);
-                            userCommand.Parameters.AddWithValue("@pinCode", customer.PinCode);
-                            userCommand.Parameters.AddWithValue("@name", customer.Name);
+                    var userCommand = new MySqlCommand(
+                        "INSERT INTO users (login, pin_code, name, user_type) " +
+                        "VALUES (@login, @pinCode, @name, 'Customer'); SELECT LAST_INSERT_ID();",
+                        connection, transaction);
+                    userCommand.Parameters.AddWithValue("@login", customer.Login);
+                    userCommand.Parameters.AddWithValue("@pinCode", customer.PinCode);
+                    userCommand.Parameters.AddWithValue("@name", customer.Name);
 
-                            int userId = Convert.ToInt32(userCommand.ExecuteScalar());
-                            customer.Id = userId;
-                            customer.AccountNumber = accountNumber;
+                    customer.Id = Convert.ToInt32(userCommand.ExecuteScalar());
+                    customer.AccountNumber = account.AccountNumber;
 
-                            // Link user to account
-                            var linkCommand = new MySqlCommand(
-                                "INSERT INTO customer_accounts (user_id, account_number) " +
-                                "VALUES (@userId, @accountNumber)",
-                                connection, transaction);
-                            linkCommand.Parameters.AddWithValue("@userId", userId);
-                            linkCommand.Parameters.AddWithValue("@accountNumber", accountNumber);
-                            linkCommand.ExecuteNonQuery();
+                    var linkCommand = new MySqlCommand(
+                        "INSERT INTO customer_accounts (user_id, account_number) " +
+                        "VALUES (@userId, @accountNumber)", connection, transaction);
+                    linkCommand.Parameters.AddWithValue("@userId", customer.Id);
+                    linkCommand.Parameters.AddWithValue("@accountNumber", account.AccountNumber);
+                    linkCommand.ExecuteNonQuery();
 
-                            transaction.Commit();
-                            return true;
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Transaction error: {ex.Message}");
-                            transaction.Rollback();
-                            return false;
-                        }
-                    }
+                    transaction.Commit();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Transaction error: {ex.Message}");
+                    transaction.Rollback();
+                    return false;
                 }
             }
             catch (Exception ex)
@@ -219,22 +189,17 @@ namespace ATMSystem
         {
             try
             {
-                using (var connection = new MySqlConnection(_connectionString))
-                {
-                    connection.Open();
-                    var command = new MySqlCommand(
-                        "UPDATE accounts SET holder_name = @holderName, " +
-                        "balance = @balance, status = @status " +
-                        "WHERE account_number = @accountNumber",
-                        connection);
-                    command.Parameters.AddWithValue("@holderName", account.HolderName);
-                    command.Parameters.AddWithValue("@balance", account.Balance);
-                    command.Parameters.AddWithValue("@status", account.Status.ToString());
-                    command.Parameters.AddWithValue("@accountNumber", account.AccountNumber);
+                using var connection = new MySqlConnection(_connectionString);
+                connection.Open();
+                var command = new MySqlCommand(
+                    "UPDATE accounts SET holder_name = @holderName, balance = @balance, status = @status " +
+                    "WHERE account_number = @accountNumber", connection);
+                command.Parameters.AddWithValue("@holderName", account.HolderName);
+                command.Parameters.AddWithValue("@balance", account.Balance);
+                command.Parameters.AddWithValue("@status", account.Status.ToString());
+                command.Parameters.AddWithValue("@accountNumber", account.AccountNumber);
 
-                    int rowsAffected = command.ExecuteNonQuery();
-                    return rowsAffected > 0;
-                }
+                return command.ExecuteNonQuery() > 0;
             }
             catch (Exception ex)
             {
@@ -247,17 +212,13 @@ namespace ATMSystem
         {
             try
             {
-                using (var connection = new MySqlConnection(_connectionString))
-                {
-                    connection.Open();
-                    var command = new MySqlCommand(
-                        "DELETE FROM accounts WHERE account_number = @accountNumber",
-                        connection);
-                    command.Parameters.AddWithValue("@accountNumber", accountNumber);
+                using var connection = new MySqlConnection(_connectionString);
+                connection.Open();
+                var command = new MySqlCommand(
+                    "DELETE FROM accounts WHERE account_number = @accountNumber", connection);
+                command.Parameters.AddWithValue("@accountNumber", accountNumber);
 
-                    int rowsAffected = command.ExecuteNonQuery();
-                    return rowsAffected > 0;
-                }
+                return command.ExecuteNonQuery() > 0;
             }
             catch (Exception ex)
             {
@@ -270,24 +231,20 @@ namespace ATMSystem
         {
             try
             {
-                using (var connection = new MySqlConnection(_connectionString))
-                {
-                    connection.Open();
-                    var command = new MySqlCommand(
-                        "INSERT INTO transactions (account_number, transaction_type, amount, balance_after) " +
-                        "VALUES (@accountNumber, @type, @amount, @balanceAfter); " +
-                        "SELECT LAST_INSERT_ID();",
-                        connection);
-                    command.Parameters.AddWithValue("@accountNumber", transaction.AccountNumber);
-                    command.Parameters.AddWithValue("@type", transaction.Type.ToString());
-                    command.Parameters.AddWithValue("@amount", transaction.Amount);
-                    command.Parameters.AddWithValue("@balanceAfter", transaction.BalanceAfter);
+                using var connection = new MySqlConnection(_connectionString);
+                connection.Open();
+                var command = new MySqlCommand(
+                    "INSERT INTO transactions (account_number, transaction_type, amount, balance_after) " +
+                    "VALUES (@accountNumber, @type, @amount, @balanceAfter); SELECT LAST_INSERT_ID();",
+                    connection);
+                command.Parameters.AddWithValue("@accountNumber", transaction.AccountNumber);
+                command.Parameters.AddWithValue("@type", transaction.Type.ToString());
+                command.Parameters.AddWithValue("@amount", transaction.Amount);
+                command.Parameters.AddWithValue("@balanceAfter", transaction.BalanceAfter);
 
-                    int transactionId = Convert.ToInt32(command.ExecuteScalar());
-                    transaction.Id = transactionId;
-                    transaction.Date = DateTime.Now;
-                    return transactionId;
-                }
+                transaction.Id = Convert.ToInt32(command.ExecuteScalar());
+                transaction.Date = DateTime.Now;
+                return transaction.Id;
             }
             catch (Exception ex)
             {
@@ -302,30 +259,25 @@ namespace ATMSystem
 
             try
             {
-                using (var connection = new MySqlConnection(_connectionString))
-                {
-                    connection.Open();
-                    var command = new MySqlCommand(
-                        "SELECT * FROM transactions WHERE account_number = @accountNumber " +
-                        "ORDER BY transaction_date DESC",
-                        connection);
-                    command.Parameters.AddWithValue("@accountNumber", accountNumber);
+                using var connection = new MySqlConnection(_connectionString);
+                connection.Open();
+                var command = new MySqlCommand(
+                    "SELECT * FROM transactions WHERE account_number = @accountNumber ORDER BY transaction_date DESC",
+                    connection);
+                command.Parameters.AddWithValue("@accountNumber", accountNumber);
 
-                    using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    transactions.Add(new Transaction
                     {
-                        while (reader.Read())
-                        {
-                            transactions.Add(new Transaction
-                            {
-                                Id = reader.GetInt32("id"),
-                                AccountNumber = reader.GetInt32("account_number"),
-                                Type = (TransactionType)Enum.Parse(typeof(TransactionType), reader.GetString("transaction_type")),
-                                Amount = reader.GetDecimal("amount"),
-                                Date = reader.GetDateTime("transaction_date"),
-                                BalanceAfter = reader.GetDecimal("balance_after")
-                            });
-                        }
-                    }
+                        Id = reader.GetInt32("id"),
+                        AccountNumber = reader.GetInt32("account_number"),
+                        Type = Enum.Parse<TransactionType>(reader.GetString("transaction_type")),
+                        Amount = reader.GetDecimal("amount"),
+                        Date = reader.GetDateTime("transaction_date"),
+                        BalanceAfter = reader.GetDecimal("balance_after")
+                    });
                 }
             }
             catch (Exception ex)
