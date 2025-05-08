@@ -845,11 +845,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Administrator\\Desktop\\Kempf\\Kefa\\ATMSystem\\src\\ATMSystem\\ATMSystem.csproj",
+      "projectUniqueName": "D:\\ATM_System\\src\\ATMSystem\\ATMSystem.csproj",
       "projectName": "ATMSystem",
-      "projectPath": "C:\\Users\\Administrator\\Desktop\\Kempf\\Kefa\\ATMSystem\\src\\ATMSystem\\ATMSystem.csproj",
+      "projectPath": "D:\\ATM_System\\src\\ATMSystem\\ATMSystem.csproj",
       "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Administrator\\Desktop\\Kempf\\Kefa\\ATMSystem\\src\\ATMSystem\\obj\\",
+      "outputPath": "D:\\ATM_System\\src\\ATMSystem\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config"

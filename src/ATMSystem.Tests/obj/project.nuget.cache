@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "fG9OCG8sD3A=",
+  "dgSpecHash": "BS7Gts1PaM8=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Administrator\\Desktop\\Kempf\\Kefa\\ATMSystem\\src\\ATMSystem.Tests\\ATMSystem.Tests.csproj",
+  "projectFilePath": "D:\\ATM_System\\src\\ATMSystem.Tests\\ATMSystem.Tests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Administrator\\.nuget\\packages\\castle.core\\5.1.1\\castle.core.5.1.1.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\coverlet.collector\\6.0.0\\coverlet.collector.6.0.0.nupkg.sha512",

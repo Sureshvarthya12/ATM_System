@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = ATMSystem
-build_property.ProjectDir = C:\Users\Administrator\Desktop\Kempf\Kefa\ATMSystem\src\ATMSystem\
+build_property.ProjectDir = D:\ATM_System\src\ATMSystem\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
