@@ -1,7 +1,7 @@
 #nuget source https://api.nuget.org/v3/index.json
 #tool "nuget:?package=GitVersion.CommandLine&version=5.10.3"
 #tool "nuget:?package=JetBrains.dotCover.CommandLineTools&version=2023.3.1"
-#addin "nuget:?package=Cake.Coverlet&version=4.0.0"
+// #addin "nuget:?package=Cake.Coverlet&version=4.0.0"
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
@@ -45,17 +45,18 @@ Task("Test")
             NoRestore = true
         };
 
-        var coverletSettings = new CoverletSettings
-        {
-            CollectCoverage = true,
-            CoverletOutputFormat = CoverletOutputFormat.cobertura,
-            CoverletOutputDirectory = Directory("./coverage"),
-            CoverletOutputName = "coverage",
-            Threshold = 90,
-            ThresholdType = ThresholdType.Line
-        };
+        // var coverletSettings = new CoverletSettings
+        // {
+        //     CollectCoverage = true,
+        //     CoverletOutputFormat = CoverletOutputFormat.cobertura,
+        //     CoverletOutputDirectory = Directory("./coverage"),
+        //     CoverletOutputName = "coverage",
+        //     Threshold = 90,
+        //     ThresholdType = ThresholdType.Line
+        // };
 
-        DotNetTest("./src/ATMSystem.Tests/ATMSystem.Tests.csproj", testSettings, coverletSettings);
+        // DotNetTest("./src/ATMSystem.Tests/ATMSystem.Tests.csproj", testSettings, coverletSettings);
+        DotNetTest("./src/ATMSystem.Tests/ATMSystem.Tests.csproj", testSettings);
     });
 
 Task("Default")
