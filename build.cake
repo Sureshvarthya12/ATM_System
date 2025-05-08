@@ -1,6 +1,6 @@
 #tool "nuget:?package=GitVersion.CommandLine&version=5.10.3"
 #tool "nuget:?package=JetBrains.dotCover.CommandLineTools&version=2023.3.1"
-#addin "nuget:?package=Cake.Coverlet&version=2.5.4"
+#addin "nuget:?package=Cake.Coverlet&version=4.0.0"
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
