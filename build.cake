@@ -1,3 +1,4 @@
+#nuget source https://api.nuget.org/v3/index.json
 #tool "nuget:?package=GitVersion.CommandLine&version=5.10.3"
 #tool "nuget:?package=JetBrains.dotCover.CommandLineTools&version=2023.3.1"
 #addin "nuget:?package=Cake.Coverlet&version=4.0.0"
