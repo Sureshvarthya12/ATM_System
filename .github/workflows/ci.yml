@@ -20,15 +20,6 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
-    - name: Create a new solution file
-      run: dotnet new sln -n ATMSystem
-
-    - name: Create a new project (e.g., a console app)
-      run: dotnet new console -n ATMSystem -o src/ATMSystem
-
-    - name: Add the project to the solution
-      run: dotnet sln ATMSystem.sln add src/ATMSystem/ATMSystem.csproj
-
     - name: Install Cake
       run: dotnet tool install --global Cake.Tool
 
