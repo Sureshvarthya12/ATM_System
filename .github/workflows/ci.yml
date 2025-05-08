@@ -23,6 +23,9 @@ jobs:
     - name: Install Cake
       run: dotnet tool install --global Cake.Tool
 
+    - name: Restore Cake tools and addins
+      run: dotnet cake build.cake --bootstrap
+
     - name: Build and Test
       run: dotnet cake build.cake --target=Default
 
