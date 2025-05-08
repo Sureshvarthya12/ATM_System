@@ -42,7 +42,7 @@ namespace ATMSystem.Tests
         public void Start_ValidCustomerLogin_ShowsCustomerMenu()
         {
             // Arrange
-            var account = new Account(1, "customer", "12345", "Test Customer", 1000m, "Active", "customer", "12345");
+            var account = new Account(1, "Test Customer", 1000m, "Active", "customer", "12345");
             _mockConsole.ReadLine().Returns("customer", "12345", "5"); // Login, PIN, Exit
             _mockAccountService.FindAccount("customer", "12345").Returns(account);
 
