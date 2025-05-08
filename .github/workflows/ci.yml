@@ -1,0 +1,43 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Install Cake
+      run: dotnet tool install --global Cake.Tool
+
+    - name: Build and Test
+      run: dotnet cake build.cake --target=Default
+
+    - name: Upload Coverage Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: coverage/coverage.cobertura.xml
+
+    - name: Publish Documentation
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        # Generate documentation using DocFX
+        dotnet tool install -g docfx
+        docfx init -q
+        docfx build
+        # Upload to GitHub Pages
+        # Note: You'll need to configure GitHub Pages in your repository settings
