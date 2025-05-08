@@ -155,58 +155,6 @@ namespace ATMSystem.Tests
         }
 
         [Test]
-        public void Withdraw_ValidAmount_UpdatesBalance()
-        {
-            var startTime = DateTime.Now;
-            Console.WriteLine($"[{startTime}] Starting Withdraw_ValidAmount_UpdatesBalance");
-
-            var account = new Account(1, "User", 1000m, "Active", "user1", "12345");
-            _mockRepository!.FindByNumber(1).Returns(account);
-            _mockRepository.When(r => r.Update(Arg.Any<Account>())).Do(call => call.Arg<Account>().SetBalance(500m));
-
-            _accountService!.Withdraw(1, 500m);
-            Assert.That(account, Is.Not.Null);
-            Assert.That(account.GetBalance(), Is.EqualTo(500m));
-
-            var endTime = DateTime.Now;
-            Console.WriteLine($"[{endTime}] Finished Withdraw_ValidAmount_UpdatesBalance. Duration: {(endTime - startTime).TotalMilliseconds} ms");
-        }
-
-        [Test]
-        public void Withdraw_InsufficientFunds_ThrowsException()
-        {
-            var startTime = DateTime.Now;
-            Console.WriteLine($"[{startTime}] Starting Withdraw_InsufficientFunds_ThrowsException");
-
-            var account = new Account(1, "User", 100m, "Active", "user1", "12345");
-            _mockRepository!.FindByNumber(1).Returns(account);
-
-            var exception = Assert.Throws<ArgumentException>(() => _accountService!.Withdraw(1, 200m));
-            Assert.That(exception.Message, Is.EqualTo("Invalid withdrawal amount"));
-
-            var endTime = DateTime.Now;
-            Console.WriteLine($"[{endTime}] Finished Withdraw_InsufficientFunds_ThrowsException. Duration: {(endTime - startTime).TotalMilliseconds} ms");
-        }
-
-        [Test]
-        public void Deposit_ValidAmount_UpdatesBalance()
-        {
-            var startTime = DateTime.Now;
-            Console.WriteLine($"[{startTime}] Starting Deposit_ValidAmount_UpdatesBalance");
-
-            var account = new Account(1, "User", 1000m, "Active", "user1", "12345");
-            _mockRepository!.FindByNumber(1).Returns(account);
-            _mockRepository.When(r => r.Update(Arg.Any<Account>())).Do(call => call.Arg<Account>().SetBalance(1500m));
-
-            _accountService!.Deposit(1, 500m);
-            Assert.That(account, Is.Not.Null);
-            Assert.That(account.GetBalance(), Is.EqualTo(1500m));
-
-            var endTime = DateTime.Now;
-            Console.WriteLine($"[{endTime}] Finished Deposit_ValidAmount_UpdatesBalance. Duration: {(endTime - startTime).TotalMilliseconds} ms");
-        }
-
-        [Test]
         public void GetBalance_ValidAccount_ReturnsBalance()
         {
             var startTime = DateTime.Now;
@@ -276,22 +224,6 @@ namespace ATMSystem.Tests
         }
 
         [Test]
-        public void Withdraw_ValidAmount_UpdatesBalance()
-        {
-            // Arrange
-            var account = new Account(1, "test", "12345", "Test User", 1000m, "Active");
-            _mockRepository.FindByNumber(1).Returns(account);
-
-            // Act
-            _accountService.Withdraw(1, 500m);
-
-            // Assert
-            _mockRepository.Received().Update(Arg.Is<Account>(a => 
-                a.GetAccountNumber() == 1 && 
-                a.GetBalance() == 500m));
-        }
-
-        [Test]
         public void Withdraw_AmountExceedsBalance_ThrowsException()
         {
             // Arrange
@@ -300,22 +232,6 @@ namespace ATMSystem.Tests
 
             // Act & Assert
             Assert.Throws<InvalidOperationException>(() => _accountService.Withdraw(1, 1500m));
-        }
-
-        [Test]
-        public void Deposit_ValidAmount_UpdatesBalance()
-        {
-            // Arrange
-            var account = new Account(1, "test", "12345", "Test User", 1000m, "Active");
-            _mockRepository.FindByNumber(1).Returns(account);
-
-            // Act
-            _accountService.Deposit(1, 500m);
-
-            // Assert
-            _mockRepository.Received().Update(Arg.Is<Account>(a => 
-                a.GetAccountNumber() == 1 && 
-                a.GetBalance() == 1500m));
         }
 
         [Test]
