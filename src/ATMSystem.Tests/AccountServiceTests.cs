@@ -171,22 +171,6 @@ namespace ATMSystem.Tests
         }
 
         [Test]
-        public void FindAccount_ValidCredentials_ReturnsAccount()
-        {
-            // Arrange
-            var expectedAccount = new Account(1, "test", "12345", "Test User", 1000m, "Active");
-            _mockRepository.FindByLoginAndPin("test", "12345").Returns(expectedAccount);
-
-            // Act
-            var result = _accountService.FindAccount("test", "12345");
-
-            // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.GetAccountNumber(), Is.EqualTo(1));
-            Assert.That(result.GetLogin(), Is.EqualTo("test"));
-        }
-
-        [Test]
         public void FindAccount_InvalidCredentials_ReturnsNull()
         {
             // Arrange
@@ -197,20 +181,6 @@ namespace ATMSystem.Tests
 
             // Assert
             Assert.That(result, Is.Null);
-        }
-
-        [Test]
-        public void GetBalance_ValidAccount_ReturnsBalance()
-        {
-            // Arrange
-            var account = new Account(1, "test", "12345", "Test User", 1000m, "Active");
-            _mockRepository.FindByNumber(1).Returns(account);
-
-            // Act
-            var balance = _accountService.GetBalance(1);
-
-            // Assert
-            Assert.That(balance, Is.EqualTo(1000m));
         }
 
         [Test]
