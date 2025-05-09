@@ -208,7 +208,7 @@ namespace ATMSystem.Tests
         public void CreateAccount_ValidData_ReturnsNewAccount()
         {
             // Arrange
-            var newAccount = new Account(1, "newuser", "12345", "New User", 0m, "Active");
+            var newAccount = new Account(1, "New User", 0m, "Active", "newuser", "12345");
             _mockRepository.Create(Arg.Any<Account>()).Returns(newAccount);
 
             // Act
@@ -237,7 +237,7 @@ namespace ATMSystem.Tests
         public void UpdateAccount_ValidData_ReturnsUpdatedAccount()
         {
             // Arrange
-            var account = new Account(1, "test", "12345", "Test User", 1000m, "Active");
+            var account = new Account(1, "Test User", 1000m, "Active", "test", "12345");
             _mockRepository.FindByNumber(1).Returns(account);
             _mockRepository.Update(Arg.Any<Account>()).Returns(account);
 

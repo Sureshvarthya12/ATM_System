@@ -60,7 +60,7 @@ namespace ATMSystem.Tests
         public void Start_ValidAdminLogin_ShowsAdminMenu()
         {
             // Arrange
-            var account = new Account(1, "admin", "12345", "Test Admin", 1000m, "Admin", "admin", "12345");
+            var account = new Account(1, "Test Admin", 1000m, "Admin", "admin", "12345");
             _mockConsole.ReadLine().Returns("admin", "12345", "5"); // Login, PIN, Exit
             _mockAccountService.FindAccount("admin", "12345").Returns(account);
 
@@ -122,7 +122,7 @@ namespace ATMSystem.Tests
         public void ShowAdminMenu_CreateAccount_ValidData_CreatesAccount()
         {
             // Arrange
-            var newAccount = new Account(1, "newuser", "12345", "New User", 0m, "Active", "newuser", "12345");
+            var newAccount = new Account(1, "New User", 0m, "Active", "newuser", "12345");
             _mockConsole.ReadLine().Returns(
                 "1", // Create Account
                 "newuser", // Login
@@ -160,7 +160,7 @@ namespace ATMSystem.Tests
         public void ShowAdminMenu_UpdateAccount_ValidData_UpdatesAccount()
         {
             // Arrange
-            var updatedAccount = new Account(1, "test", "12345", "Test User", 2000m, "Active", "test", "12345");
+            var updatedAccount = new Account(1, "Test User", 2000m, "Active", "test", "12345");
             _mockConsole.ReadLine().Returns(
                 "3", // Update Account
                 "1", // Account Number
@@ -269,7 +269,7 @@ namespace ATMSystem.Tests
             Console.WriteLine($"[{startTime}] Starting ShowAdminMenu_UpdateAccount_ValidInput_Success");
 
             _mockConsole!.ReadLine().Returns("3", "1", "2000", "Inactive");
-            var account = new Account(1, "User", 2000m, "Inactive", "user1", "12345", "User", "12345");
+            var account = new Account(1, "User", 2000m, "Inactive", "user1", "12345");
             _mockAccountService!.FindByNumber(1).Returns(account);
             _mockAccountService.UpdateAccount(1, 2000m, "Inactive").Returns(account);
 
@@ -304,7 +304,7 @@ namespace ATMSystem.Tests
             Console.WriteLine($"[{startTime}] Starting ShowAdminMenu_SearchAccount_AccountExists_DisplaysAccount");
 
             _mockConsole!.ReadLine().Returns("4", "1");
-            var account = new Account(1, "User", 1000m, "Active", "user1", "12345", "User", "12345");
+            var account = new Account(1, "User", 1000m, "Active", "user1", "12345");
             _mockAccountService!.FindByNumber(1).Returns(account);
 
             _atmConsole!.ShowAdminMenu(1);

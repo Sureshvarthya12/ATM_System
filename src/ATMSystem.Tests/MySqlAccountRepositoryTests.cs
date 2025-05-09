@@ -214,7 +214,7 @@ namespace ATMSystem.Tests
         public void Create_ValidAccount_ReturnsNewAccount()
         {
             // Arrange
-            var account = new Account(0, "newuser", "12345", "New User", 0m, "Active");
+            var account = new Account(0, "New User", 0m, "Active", "newuser", "12345");
             _command!.ExecuteNonQuery().Returns(1);
             _command.ExecuteScalar().Returns(1);
 
