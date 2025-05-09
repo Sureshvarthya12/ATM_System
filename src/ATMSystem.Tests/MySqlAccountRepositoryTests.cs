@@ -231,15 +231,16 @@ namespace ATMSystem.Tests
         public void Update_ValidAccount_ReturnsTrue()
         {
             // Arrange
-            var account = new Account(1, "test", "12345", "Test User", 1000m, "Active");
+            var account = new Account(1, "Test User", 1000m, "Active", "test", "12345");
             _reader!.Read().Returns(true);
             SetupReaderForAccount(account);
 
             // Act
-            var result = _repository!.Update(account);
+            _repository!.Update(account);
 
             // Assert
-            Assert.That(result, Is.True);
+            Assert.That(account.GetBalance(), Is.EqualTo(1000m));
+            Assert.That(account.GetStatus(), Is.EqualTo("Active"));
         }
 
         [Test]

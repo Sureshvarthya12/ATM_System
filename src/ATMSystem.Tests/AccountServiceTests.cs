@@ -210,7 +210,7 @@ namespace ATMSystem.Tests
             // Arrange
             var account = new Account(1, "Test User", 1000m, "Active", "test", "12345");
             _mockRepository.FindByNumber(1).Returns(account);
-            _mockRepository.Update(Arg.Any<Account>()).Returns(account);
+            _mockRepository.Update(Arg.Any<Account>());
 
             // Act
             var result = _accountService.UpdateAccount(1, 2000m, "Active");
