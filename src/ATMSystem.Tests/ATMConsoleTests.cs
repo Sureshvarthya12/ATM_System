@@ -122,14 +122,23 @@ namespace ATMSystem.Tests
         public void ShowAdminMenu_CreateAccount_ValidData_CreatesAccount()
         {
             // Arrange
-            _mockAccountService!.CreateAccount("newuser", "12345", "New User", 0m).Returns(new Account(1, "New User", 0m, "Active", "newuser", "12345"));
-            _mockConsole!.ReadLine().Returns("1", "newuser", "12345", "New User", "0", "5");
+            var newAccount = new Account(1, "New User", 0m, "Active", "newuser", "12345");
+            _mockConsole.ReadLine().Returns(
+                "1", // Create Account
+                "newuser", // Login
+                "12345", // PIN
+                "New User", // Name
+                "0", // Balance
+                "5" // Exit
+            );
+            _mockAccountService.CreateAccount("newuser", "12345", "New User", 0m).Returns(newAccount);
 
             // Act
-            _atmConsole!.ShowAdminMenu();
+            _atmConsole.ShowAdminMenu(1);
 
             // Assert
             _mockAccountService.Received().CreateAccount("newuser", "12345", "New User", 0m);
+            _mockConsole.Received().WriteLine(Arg.Is<string>(s => s.Contains("Account created with number 1")));
         }
 
         [Test]

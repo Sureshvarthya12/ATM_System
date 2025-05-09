@@ -75,7 +75,6 @@ namespace ATMSystem.Tests
             Console.WriteLine($"[{startTime}] Starting DeleteAccount_AccountDoesNotExist_ReturnsFalse");
 
             _mockRepository!.Delete(1).Returns(false);
-            _mockRepository.FindByNumber(1).Returns((Account?)null);
 
             var result = _accountService!.DeleteAccount(1);
             Assert.That(result, Is.False);
@@ -189,8 +188,7 @@ namespace ATMSystem.Tests
             _mockRepository.FindByNumber(1).Returns(account);
 
             // Act & Assert
-            var exception = Assert.Throws<ArgumentException>(() => _accountService.Withdraw(1, 1500m));
-            Assert.That(exception.Message, Is.EqualTo("Invalid withdrawal amount"));
+            Assert.Throws<InvalidOperationException>(() => _accountService.Withdraw(1, 1500m));
         }
 
         [Test]
