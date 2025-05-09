@@ -30,11 +30,12 @@ jobs:
       run: dotnet cake build.cake --target=Default --skip-tests=true
 
     - name: Ensure Coverage Report Exists
+      shell: pwsh
       run: |
-        if [ ! -f coverage/coverage.cobertura.xml ]; then
-          mkdir -p coverage
-          echo '<?xml version="1.0"?><coverage></coverage>' > coverage/coverage.cobertura.xml
-        fi
+        if (!(Test-Path 'coverage/coverage.cobertura.xml')) {
+          New-Item -ItemType Directory -Force -Path coverage | Out-Null
+          Set-Content -Path coverage/coverage.cobertura.xml -Value '<?xml version="1.0"?><coverage></coverage>'
+        }
 
     - name: Upload Coverage Report
       uses: actions/upload-artifact@v4
