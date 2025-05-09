@@ -61,7 +61,15 @@ Task("Test")
         }
     });
 
-Task("Default")
-    .IsDependentOn("Test");
+if (skipTests)
+{
+    Task("Default")
+        .IsDependentOn("Build");
+}
+else
+{
+    Task("Default")
+        .IsDependentOn("Test");
+}
 
 RunTarget(target); 
