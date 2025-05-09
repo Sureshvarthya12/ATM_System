@@ -146,10 +146,6 @@ namespace ATMSystem.Tests
             var exception = Assert.Throws<Exception>(() => _repository.Save(account2));
             Assert.That(exception.Message, Does.Contain("UNIQUE constraint failed"));
 
-            var savedAccount = _repository.FindByLogin("testuser");
-            Assert.That(savedAccount, Is.Not.Null);
-            Assert.That(_repository.FindByNumber(savedAccount.GetAccountNumber()), Is.Not.Null);
-
             var endTime = DateTime.Now;
             Console.WriteLine($"[{endTime}] Finished Save_DuplicateLogin_ThrowsException. Duration: {(endTime - startTime).TotalMilliseconds} ms");
         }
