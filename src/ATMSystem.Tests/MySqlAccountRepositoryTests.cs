@@ -130,24 +130,18 @@ namespace ATMSystem.Tests
         [Test]
         public void Save_DuplicateLogin_ThrowsException()
         {
-            var startTime = DateTime.Now;
-            Console.WriteLine($"[{startTime}] Starting Save_DuplicateLogin_ThrowsException");
-
-            var account1 = new Account(1, "TestUser1", 500m, "Active", "testuser", "12345");
-            _reader!.Read().Returns(true, false);
-            SetupReaderForAccount(account1);
-
+            // Setup mocks
             _command!.ExecuteNonQuery().Returns(1);
             _command.When(x => x.ExecuteNonQuery()).Do(x => throw new Exception("UNIQUE constraint failed"));
 
+            // Create and save first account
+            var account1 = new Account(1, "TestUser1", 500m, "Active", "testuser", "12345");
             _repository!.Save(account1);
 
+            // Attempt to save second account with duplicate login
             var account2 = new Account(0, "TestUser2", 1000m, "Active", "testuser", "67890");
             var exception = Assert.Throws<Exception>(() => _repository.Save(account2));
             Assert.That(exception.Message, Does.Contain("UNIQUE constraint failed"));
-
-            var endTime = DateTime.Now;
-            Console.WriteLine($"[{endTime}] Finished Save_DuplicateLogin_ThrowsException. Duration: {(endTime - startTime).TotalMilliseconds} ms");
         }
 
         // [Test]
