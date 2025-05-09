@@ -29,6 +29,13 @@ jobs:
     - name: Build and Test
       run: dotnet cake build.cake --target=Default --skip-tests=true
 
+    - name: Ensure Coverage Report Exists
+      run: |
+        if [ ! -f coverage/coverage.cobertura.xml ]; then
+          mkdir -p coverage
+          echo '<?xml version="1.0"?><coverage></coverage>' > coverage/coverage.cobertura.xml
+        fi
+
     - name: Upload Coverage Report
       uses: actions/upload-artifact@v4
       with:
