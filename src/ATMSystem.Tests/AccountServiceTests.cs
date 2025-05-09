@@ -47,7 +47,7 @@ namespace ATMSystem.Tests
             Console.WriteLine($"[{startTime}] Starting CreateAccount_InvalidPin_ThrowsArgumentException");
 
             var exception = Assert.Throws<ArgumentException>(() => _accountService!.CreateAccount("user1", "1234", "User", 1000m));
-            Assert.That(exception.Message, Is.EqualTo("PIN must be exactly 5 digits"));
+            Assert.That(exception.Message, Is.EqualTo("PIN must be exactly 5 digits (Parameter 'pin')"));
 
             var endTime = DateTime.Now;
             Console.WriteLine($"[{endTime}] Finished CreateAccount_InvalidPin_ThrowsArgumentException. Duration: {(endTime - startTime).TotalMilliseconds} ms");
