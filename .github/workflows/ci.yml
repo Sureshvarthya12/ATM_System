@@ -27,7 +27,7 @@ jobs:
       run: dotnet cake build.cake --bootstrap
 
     - name: Build and Test
-      run: dotnet cake build.cake --target=Default --no-test
+      run: dotnet cake build.cake --target=Default --skip-tests=true
 
     - name: Upload Coverage Report
       uses: actions/upload-artifact@v4
