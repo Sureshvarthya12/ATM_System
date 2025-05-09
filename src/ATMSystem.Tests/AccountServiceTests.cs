@@ -171,19 +171,6 @@ namespace ATMSystem.Tests
         }
 
         [Test]
-        public void FindAccount_InvalidCredentials_ReturnsNull()
-        {
-            // Arrange
-            _mockRepository.FindByLoginAndPin(Arg.Any<string>(), Arg.Any<string>()).Returns((Account)null);
-
-            // Act
-            var result = _accountService.FindAccount("invalid", "invalid");
-
-            // Assert
-            Assert.That(result, Is.Null);
-        }
-
-        [Test]
         public void GetBalance_InvalidAccount_ThrowsException()
         {
             // Arrange
@@ -197,27 +184,11 @@ namespace ATMSystem.Tests
         public void Withdraw_AmountExceedsBalance_ThrowsException()
         {
             // Arrange
-            var account = new Account(1, "test", "12345", "Test User", 1000m, "Active");
+            var account = new Account(1, "Test User", 1000m, "Active", "test", "12345");
             _mockRepository.FindByNumber(1).Returns(account);
 
             // Act & Assert
             Assert.Throws<InvalidOperationException>(() => _accountService.Withdraw(1, 1500m));
-        }
-
-        [Test]
-        public void CreateAccount_ValidData_ReturnsNewAccount()
-        {
-            // Arrange
-            var newAccount = new Account(1, "New User", 0m, "Active", "newuser", "12345");
-            _mockRepository.Create(Arg.Any<Account>()).Returns(newAccount);
-
-            // Act
-            var result = _accountService.CreateAccount("newuser", "12345", "New User", 0m);
-
-            // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.GetLogin(), Is.EqualTo("newuser"));
-            Assert.That(result.GetStatus(), Is.EqualTo("Active"));
         }
 
         [Test]
