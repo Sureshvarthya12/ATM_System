@@ -4,6 +4,7 @@
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 var solution = "./ATMSystem.sln";
+var skipTests = Argument("skip-tests", false);
 
 Task("Clean")
     .Does(() =>
@@ -54,7 +55,10 @@ Task("Test")
         // };
 
         // DotNetTest("./src/ATMSystem.Tests/ATMSystem.Tests.csproj", testSettings, coverletSettings);
-        DotNetTest("./src/ATMSystem.Tests/ATMSystem.Tests.csproj", testSettings);
+        if (!skipTests)
+        {
+            DotNetTest("./src/ATMSystem.Tests/ATMSystem.Tests.csproj", testSettings);
+        }
     });
 
 Task("Default")
